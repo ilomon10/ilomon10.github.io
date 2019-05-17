@@ -1,21 +1,72 @@
 import React from "react"
-import { Link } from "gatsby"
+import { graphql } from "gatsby";
+import Link from "gatsby-link";
+import Img from "gatsby-image";
 
 import Layout from "../components/layout"
-import Image from "../components/image"
 import SEO from "../components/seo"
+import Container from "../components/container"
+import Flex from "../components/flex"
+import Card, { CardOverlay, CardImage } from "../components/card"
+import Text from "../components/text"
 
-const IndexPage = () => (
+import constant from "../components/constant"
+
+const IndexPage = ({data}) => (
   <Layout>
-    <SEO title="Home" keywords={[`gatsby`, `application`, `react`]} />
-    <h1>Hi people</h1>
-    <p>Welcome to your new Gatsby site.</p>
-    <p>Now go build something great.</p>
-    <div style={{ maxWidth: `300px`, marginBottom: `1.45rem` }}>
-      <Image />
-    </div>
-    <Link to="/page-2/">Go to page 2</Link>
+    <SEO title="Home" lang='en'
+      keywords={[`portfolio`, `ilomon10`, `web`, `designer`, `gatsby`, `application`, `react`]} />
+    <Container style={{ paddingBottom: constant.padding[20] }}>
+      <Flex parent wrap={true} gap='4' per={3}>
+        {data.allMarkdownRemark.edges.map(({node}) => (
+          <Flex child grow key={node.id}>
+            <Card>
+              <CardImage>
+                <Img fluid={node.frontmatter.thumbnail.childImageSharp.fluid}/>
+              </CardImage>
+              <CardOverlay>
+                <Flex parent endCross style={{ height: '100%' }}>
+                  <Flex child>
+                    <Text variant='display'>
+                      <Link to={node.frontmatter.path}>
+                      {node.frontmatter.title}
+                      </Link>
+                    </Text>
+                    <Text variant='body1'>{node.frontmatter.date}</Text>
+                    <Text variant='caption'>illustrator | web design</Text>
+                  </Flex>
+                </Flex>
+              </CardOverlay>
+            </Card>
+          </Flex>
+        ))}
+      </Flex>
+    </Container>
   </Layout>
 )
+
+export const pageQuery = graphql`
+  query  {
+    allMarkdownRemark(limit:12){
+      edges{  
+        node{
+          id
+          frontmatter {
+            path
+            title
+            date
+            thumbnail {
+              childImageSharp {
+                fluid(maxWidth: 630) {
+                  ...GatsbyImageSharpFluid
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
 
 export default IndexPage
